@@ -98,6 +98,7 @@ int main(int argc, char** argv)
 #elif ROS2_FOUND
   std::shared_ptr<rclcpp::Node> nd = rclcpp::Node::make_shared("param_handle");
   std::string path = nd->declare_parameter<std::string>("config_path", "");
+  bool enable_imu_data = nd->declare_parameter<bool>("enable_imu_data", false);
 #endif
 
 #if defined(ROS_FOUND) || defined(ROS2_FOUND)
@@ -121,7 +122,8 @@ int main(int argc, char** argv)
     RS_ERROR << "The format of config file " << config_path << " is wrong. Please check (e.g. indentation)." << RS_REND;
     return -1;
   }
-
+  from launch.actions import DeclareLaunchArgument
+  from launch.substitutions import LaunchConfiguration
   std::shared_ptr<NodeManager> demo_ptr = std::make_shared<NodeManager>(enable_imu_data);
   demo_ptr->init(config);
   demo_ptr->start();
