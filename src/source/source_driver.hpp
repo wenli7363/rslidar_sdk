@@ -54,6 +54,7 @@ public:
   virtual ~SourceDriver();
 
   SourceDriver(SourceType src_type);
+  SourceDriver(SourceType src_type, bool enable_imu_data);
 
 protected:
 
@@ -74,7 +75,7 @@ protected:
   std::thread imu_data_process_thread_;
   std::thread point_cloud_process_thread_;
   bool to_exit_process_;
-  bool enable_imu_data_;  // 运行时IMU开关
+  bool enable_imu_data_; 
 };
 
 SourceDriver::SourceDriver(SourceType src_type)
@@ -82,16 +83,15 @@ SourceDriver::SourceDriver(SourceType src_type)
 {
 }
 
+SourceDriver::SourceDriver(SourceType src_type, bool enable_imu_data)
+  : Source(src_type), to_exit_process_(false), enable_imu_data_(enable_imu_data)
+{
+}
+
 inline void SourceDriver::init(const YAML::Node& config)
 {
   YAML::Node driver_config = yamlSubNodeAbort(config, "driver");
   lidar::RSDriverParam driver_param;
-
-  // 直接从ROS参数服务器读取IMU开关
-#ifdef ROS_FOUND
-  ros::NodeHandle nh("~");
-  nh.getParam("enable_imu_data", this->enable_imu_data_);
-#endif
 
   // input related
   yamlRead<uint16_t>(driver_config, "msop_port", driver_param.input_param.msop_port, 6699);
